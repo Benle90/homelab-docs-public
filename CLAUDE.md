@@ -39,6 +39,23 @@ This is a **recovery-grade documentation** repository for a homelab setup. The c
 3. Use the template at [docs/templates/lesson-learned.md](docs/templates/lesson-learned.md)
 4. Include: what happened, why it was a problem, how it was fixed, and the lesson learned
 
+## Don't Invent Content
+
+**Always ask before creating:**
+- Checklists, verification procedures, or audits
+- Success metrics, KPIs, or acceptance criteria
+- Progress trackers or status tables (use GitHub Issues instead)
+- Templates with fill-in-the-blank sections
+- Generic advice sections ("Emergency Contacts", "Tips", etc.)
+- Any content the user hasn't explicitly requested
+
+**Document what exists, not what could exist:**
+- Only document actual configurations, services, and procedures
+- Don't create hypothetical plans or future-state documentation unless asked
+- If unsure whether content is needed, ask first
+
+**Progress tracking belongs in GitHub Issues**, not in markdown files.
+
 ## Proactive Documentation Improvements
 
 **While working, watch for and suggest fixes for:**
