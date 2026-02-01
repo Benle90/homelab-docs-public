@@ -13,6 +13,7 @@ This repository documents my entire homelab setup with the assumption that **eve
 - [Current State](current-state.md) - What's deployed right now
 - [Quick Reference](QUICK-REFERENCE.md) - IPs, credentials, key commands
 - [Hardware Inventory](inventory.md) - All physical hardware
+- [Architecture](architecture.md) - Design goals and server roles
 - [Changelog](CHANGELOG.md) - All significant changes and decisions
 - [Lessons Learned](LESSONS-LEARNED.md) - What worked, what didn't
 
@@ -40,9 +41,11 @@ This repository documents my entire homelab setup with the assumption that **eve
 - [Migration Plan](procedures/migration-plan.md) - TrueNAS → Proxmox migration
 
 ### 🔄 Recovery
+- [Recovery Overview](recovery/backups.md) - Backup layers at a glance
 - [Backup Strategy](recovery/backup-strategy.md) - Proxmox, TrueNAS, offsite backups
 - [Disaster Recovery](recovery/disaster-recovery.md) - Full rebuild procedures
-- [Proxmox Host Backup & Restore](recovery/proxmox-host-backup-restore.md)
+- [Proxmox Backup & Restore](recovery/proxmox-backup-restore.md)
+- [TrueNAS Backup & Restore](recovery/truenas-backup-restore.md)
 
 ---
 
@@ -55,18 +58,20 @@ This repository documents my entire homelab setup with the assumption that **eve
 
 ---
 
-## Architecture at a Glance
+## Goal Architecture
+
+> ⚠️ **Note:** This shows the target state. See [current-state.md](current-state.md) for what's actually running today.
 
 ```
 ┌─────────────────────────────────┐
-│ Proxmox (Infra)    │
+│ Proxmox (Small - Always On)    │
 │  ├─ Home Assistant VM           │
-│  ├─ DNS (AdGuard - planned)    │
+│  ├─ DNS (AdGuard)              │
 │  └─ Core Infrastructure         │
 └─────────────────────────────────┘
                 ↕
 ┌─────────────────────────────────┐
-│ TrueNAS (Storage)       │
+│ TrueNAS (Big - On-Demand)       │
 │  ├─ Storage (ZFS)               │
 │  ├─ Immich, Nextcloud           │
 │  └─ Backups                     │
@@ -75,4 +80,3 @@ This repository documents my entire homelab setup with the assumption that **eve
 
 ---
 
-<!-- VS Code setup complete -->
