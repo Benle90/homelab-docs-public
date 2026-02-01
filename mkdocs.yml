@@ -1,6 +1,6 @@
 site_name: Homelab Documentation
 site_description: Personal homelab setup and procedures
-site_author: Bence
+site_author: Benle90
 
 theme:
   name: material
