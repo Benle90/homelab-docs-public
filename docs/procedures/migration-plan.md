@@ -342,6 +342,8 @@ qm set <VMID> -usb0 host=<vendorid>:<productid>
 | 4 | Access Layer | ⏳ Not started | - | - | - |
 | 5 | Final Validation | ⏳ Not started | - | - | - |
 
+To Do: Migrate Progress Tracker to GitHub Issues, as there might be Issues created already, so this information about progress might be outdated.
+
 ---
 
 ## 🎯 Success Metrics
@@ -378,41 +380,6 @@ qm set <VMID> -usb0 host=<vendorid>:<productid>
 - Wait 24 hours to calm down
 - Read logs and troubleshoot
 - Try again when you understand what went wrong
-
----
-
-## 📝 Notes & Observations
-
-### During Migration
-(Add notes here as you work through migration)
-
-**Date:** ___________  
-**Phase:** ___________  
-**Note:** ___________
-
----
-
-## 🎓 Lessons from This Migration
-
-(Fill this out AFTER completing migration)
-
-**What went well:**
-- 
-
-**What was harder than expected:**
-- 
-
-**What I'd do differently next time:**
-- 
-
-**Unexpected issues:**
-- 
-
-**Tools that helped:**
-- 
-
-**Time estimate accuracy:**
-- 
 
 ---
 
