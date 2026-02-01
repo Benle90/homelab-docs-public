@@ -58,14 +58,14 @@ This repository documents my entire homelab setup with the assumption that **eve
 
 ```
 ┌─────────────────────────────────┐
-│ Proxmox (Small - Always On)    │
+│ Proxmox (Infra)    │
 │  ├─ Home Assistant VM           │
 │  ├─ DNS (AdGuard - planned)    │
 │  └─ Core Infrastructure         │
 └─────────────────────────────────┘
                 ↕
 ┌─────────────────────────────────┐
-│ TrueNAS (Big - On-Demand)       │
+│ TrueNAS (Storage)       │
 │  ├─ Storage (ZFS)               │
 │  ├─ Immich, Nextcloud           │
 │  └─ Backups                     │
