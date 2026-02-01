@@ -245,7 +245,7 @@
 
 ## Historical Context (Pre-Documentation)
 
-### ~2025-2024
+### Dec 2025
 - Initial homelab setup
 - TrueNAS SCALE installed on big server
 - Proxmox VE installed on small server
@@ -267,4 +267,4 @@
 
 ---
 
-**Last Updated:** 2026-01-31
+**Last Updated:** 2026-02-01
