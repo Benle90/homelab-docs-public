@@ -121,7 +121,8 @@ Use consistent emoji markers:
 
 | Content Type | Location |
 |-------------|----------|
-| Server hardware/config | `docs/servers/` |
+| **Hardware inventory** | `docs/inventory.md` (single source of truth) |
+| Server hardware/config | `docs/servers/` (link to inventory for hardware specs) |
 | Server-provided resources (shares, exports) | `docs/servers/` (on the server that provides them) |
 | Service documentation | `docs/services/` |
 | Backup/recovery procedures | `docs/recovery/` |
@@ -146,6 +147,39 @@ Use consistent emoji markers:
 - Quick IP/URL lookups for daily use
 - NOT for detailed configuration that changes rarely
 
+## Hardware Inventory
+
+**[docs/inventory.md](docs/inventory.md)** is the single source of truth for all physical hardware.
+
+### When Discussing Hardware
+
+**Always check inventory.md first** when the conversation involves:
+- Servers, VMs, or compute hardware
+- Network equipment (router, switches)
+- Smart home devices (hubs, sensors, lights, speakers)
+- Any physical device in the homelab
+
+### When Hardware Changes
+
+**Always update inventory.md** when:
+- New hardware is added (servers, sensors, smart devices)
+- Hardware is replaced or removed
+- Device locations change
+- New smart home devices are configured
+- IP addresses or entity names are discovered
+
+**Then update dependent docs:**
+- If adding a server → also update `docs/servers/` and link to inventory
+- If adding smart home device → also update `docs/services/home-assistant/integrations.md`
+- If changing IPs → also update `docs/QUICK-REFERENCE.md`
+
+### Inventory Structure
+
+The inventory uses anchors (e.g., `{#truenas}`, `{#dirigera}`) so other docs can link to specific items:
+```markdown
+See [IKEA Dirigera](inventory.md#dirigera) for hardware details.
+```
+
 ## Network Context
 
 - **Subnet:** 192.168.178.0/24
@@ -160,6 +194,32 @@ This repository uses MkDocs with Material theme. When adding new pages:
 1. Create the markdown file in the appropriate `docs/` subdirectory
 2. Update `mkdocs.yml` navigation section to include the new page
 3. Test locally with `mkdocs serve` if needed
+
+## When Adding, Renaming, Moving, or Deleting Files
+
+**These files track documentation structure and must stay in sync:**
+- `docs/README.md` - Quick navigation links
+- `docs/Folder_structure.md` - Complete file tree
+- `mkdocs.yml` - Site navigation
+
+> **Future improvement:** Consider having README.md link to Folder_structure.md for the complete list instead of maintaining duplicate navigation. This would make Folder_structure.md the single source of truth for file organization.
+
+### File Change Checklist
+
+| Action | Files to Update |
+|--------|-----------------|
+| **Create** new .md | `README.md` (if user-facing), `Folder_structure.md`, `mkdocs.yml` |
+| **Rename** .md file | Above 3 + search for and fix all links to old filename |
+| **Move** .md file | Same as rename |
+| **Delete** .md file | Remove from above 3 + search for and remove all links to it |
+
+### How to Check for Broken Links
+
+After renaming, moving, or deleting a file:
+```bash
+# Search for references to the old filename
+grep -r "old-filename.md" docs/
+```
 
 ## Templates
 
