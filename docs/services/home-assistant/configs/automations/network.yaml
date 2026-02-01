@@ -1,0 +1,68 @@
+# Network Monitoring Automations
+# Monitor FRITZ!Box and internet connectivity
+
+# FRITZ!Box Internet Connection Monitoring
+- id: '1768083862605'
+  alias: FRITZ!Box - Internet connection lost
+  description: Alert when WAN connection goes down (2min debounce)
+  triggers:
+  - entity_id:
+    - binary_sensor.fritz_box_6591_cable_vodafone_connection
+    from:
+    - Connected
+    for:
+      hours: 0
+      minutes: 2
+      seconds: 0
+    trigger: state
+  actions:
+  # Store disconnection timestamp for downtime calculation
+  - target:
+      entity_id: input_datetime.internet_disconnected_at
+    data:
+      datetime: '{{ now().strftime(''%Y-%m-%d %H:%M:%S'') }}'
+    action: input_datetime.set_datetime
+  - data:
+      title: "🌐 Internet connection LOST"
+      message: >
+        FRITZ!Box connection lost.
+        Previous uptime: {{ states('sensor.fritz_box_6591_cable_vodafone_connection_uptime') }}.
+        State changed from "{{ trigger.from_state.state }}" to "{{ trigger.to_state.state }}".
+    action: notify.mobile_app_user1_phone
+  - data:
+      title: "🌐 Internet connection LOST"
+      notification_id: fritz_internet_down
+      message: >
+        FRITZ!Box connection lost.
+        Previous uptime: {{ states('sensor.fritz_box_6591_cable_vodafone_connection_uptime') }}.
+    action: persistent_notification.create
+  mode: single
+
+- id: '1768083919172'
+  alias: FRITZ!Box - Internet connection restored
+  description: Alert when WAN connection is restored (1min debounce)
+  triggers:
+  - entity_id: sensor.fritz_box_6591_cable_vodafone_connection
+    to: Connected
+    for: 00:01:00
+    trigger: state
+  variables:
+    disconnected_at: '{{ states(''input_datetime.internet_disconnected_at'') }}'
+    downtime_minutes: >
+      {% if disconnected_at not in ['unknown','unavailable','none',''] %}
+        {{ ((as_timestamp(now()) - as_timestamp(disconnected_at)) / 60) | round(1) }}
+      {% else %}
+        unknown
+      {% endif %}
+  actions:
+  - data:
+      title: ✅ Internet connection restored
+      message: >
+        Internet connection restored.
+        Downtime: {{ downtime_minutes }} minutes.
+        New uptime since: {{ states('sensor.fritz_box_6591_cable_vodafone_connection_uptime') }}.
+    action: notify.mobile_app_user1_phone
+  - data:
+      notification_id: fritz_internet_down
+    action: persistent_notification.dismiss
+  mode: single

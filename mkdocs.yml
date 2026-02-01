@@ -1,0 +1,51 @@
+site_name: Homelab Documentation
+site_description: Personal homelab setup and procedures
+site_author: Bence
+
+theme:
+  name: material
+  palette:
+    primary: indigo
+    accent: indigo
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+    - search.suggest
+
+nav:
+  - Home: README.md
+  - Current State: current-state.md
+  - Quick Reference: QUICK-REFERENCE.md
+  - Servers:
+    - Infrastructure: servers/infra-server.md
+    - Storage: servers/storage-server.md
+  - Network: network.md
+  - Services:
+    - Overview: services.md
+    - DNS (AdGuard): services/dns-adguard.md
+    - Monitoring: services/monitoring.md
+    - Immich: services/immich.md
+    - Nextcloud: services/nextcloud.md
+    - Home Assistant:
+      - Overview: services/home-assistant/home_assistant.md
+      - Automations: services/home-assistant/ha_automations.md
+      - Scripts: services/home-assistant/scripts.md
+      - Integrations: services/home-assistant/integrations.md
+      - Dashboards: services/home-assistant/dashboards.md
+      - Config Files: services/home-assistant/configs/README.md
+  - Procedures:
+    - Migration Plan: procedures/migration-plan.md
+  - Recovery:
+    - Backup Strategy: recovery/backup-strategy.md
+    - Disaster Recovery: recovery/disaster-recovery.md
+  - Changelog: CHANGELOG.md
+  - Lessons Learned: LESSONS-LEARNED.md
+  - Templates:
+    - Lesson Learned: templates/lesson-learned.md
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true

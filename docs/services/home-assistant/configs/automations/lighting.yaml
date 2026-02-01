@@ -1,0 +1,115 @@
+# Lighting Automations
+# These automations enhance comfort and energy efficiency by responding to context
+
+# TV Backlight Control
+- id: '1738003658937'
+  alias: Turn on TV Backlight when TV turns on
+  description: Turn on TV backlight when TV powers on (only at night)
+  triggers:
+  - trigger: state
+    entity_id: media_player.lg_tv
+    to: 'on'
+  conditions:
+  - condition: sun
+    before: sunrise
+    after: sunset
+  actions:
+  - action: light.turn_on
+    data:
+      transition: 5
+      brightness_pct: 25
+    target:
+      entity_id: light.essentials_lightstrip
+  mode: single
+
+- id: '1738003788392'
+  alias: Turn off TV Backlight when TV turns off
+  description: Turn off backlight when TV powers off
+  triggers:
+  - trigger: state
+    entity_id: media_player.lg_tv
+    to: 'off'
+  actions:
+  - action: light.turn_off
+    data:
+      transition: 5
+    target:
+      entity_id: light.essentials_lightstrip
+  mode: single
+
+# Bedroom Lighting
+- id: '1738006310063'
+  alias: Bed light gently on at night
+  description: When bed light is turned on after 8 PM, force it to dim (15%)
+  triggers:
+  - trigger: state
+    entity_id: light.bed
+    to: 'on'
+  conditions:
+  - condition: time
+    after: '20:00:00'
+  actions:
+  - action: light.turn_on
+    data:
+      brightness_pct: 15
+    target:
+      entity_id: light.bed
+  mode: single
+
+- id: '1738009469042'
+  alias: Turn off Bedroom lights when Bed is turned off after 10 PM
+  description: Turn off all bedroom lights when bed light off late at night
+  triggers:
+  - trigger: state
+    entity_id: light.bed
+    from: 'on'
+    to: 'off'
+  conditions:
+  - condition: time
+    after: '22:00:00'
+  - condition: time
+    before: 04:00:00
+  actions:
+  - action: light.turn_off
+    target:
+      area_id: bedroom
+  mode: single
+
+# Kids Room Controls
+- id: '1769278045351'
+  alias: Switch Child1s Room Lamp with Button
+  description: Physical button to toggle Child1's room lamp
+  triggers:
+  - device_id: <BUTTON_DEVICE_ID>
+    domain: zha
+    type: remote_button_short_press
+    subtype: button
+    trigger: device
+  actions:
+  - action: switch.toggle
+    target:
+      entity_id: switch.smart_plug
+  mode: single
+
+- id: '1769342498363'
+  alias: Kids – Bedtime
+  description: One-button bedtime routine for kids
+  triggers:
+  - event_type: input_button.press
+    event_data:
+      entity_id: input_button.kids_bedtime
+    trigger: event
+  actions:
+  - action: light.turn_on
+    target:
+      entity_id:
+      - light.bed
+      - light.desk
+      - light.child1s_room_smart_plug
+      - light.child2s_lamp
+    data:
+      brightness_pct: 50
+  - action: light.turn_off
+    target:
+      entity_id: light.h6076
+  mode: single

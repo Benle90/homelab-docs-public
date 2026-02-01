@@ -1,0 +1,58 @@
+# Mailbox Automations
+# Monitor mailbox using Aqara vibration sensor in tilt detection mode
+
+# New Mail Notification
+- id: '1768416530786'
+  alias: New Brief Notification
+  description: Notify both family members when mail arrives
+  triggers:
+  - device_id: <MAILBOX_SENSOR_DEVICE_ID>
+    domain: zha
+    type: device_tilted
+    subtype: device_tilted
+    trigger: device
+  actions:
+  - action: notify.mobile_app_user1_phone
+    data:
+      title: "📬 Mail"
+      message: Postbox tilted
+  - action: notify.mobile_app_user2_phone
+    data:
+      title: "📬 Posta"
+      message: A postaládát kinyitották
+  - action: counter.increment
+    target:
+      entity_id: counter.mailbox_mail_today
+  mode: single
+
+# Alexa Announcement
+- id: '1768483929417'
+  alias: Postbox – Alexa announcement
+  description: Voice announcement via Alexa when mail arrives (respects DND, 1min cooldown)
+  triggers:
+  - entity_id: binary_sensor.postbox_tilt
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: switch.user1_echo_do_not_disturb
+    state: 'off'
+  actions:
+  - data:
+      message: Neue Post im Briefkasten.
+    action: notify.user1_echo_speak
+  - delay: 00:01:00
+  mode: single
+
+# Daily Counter Reset
+- id: '1769107330971'
+  alias: Mailbox – Reset daily mail counter
+  description: Reset mailbox counter at midnight
+  triggers:
+  - trigger: time
+    at: 00:00:00
+  actions:
+  - action: counter.reset
+    target:
+      entity_id: counter.mailbox_mail_today
+  mode: single

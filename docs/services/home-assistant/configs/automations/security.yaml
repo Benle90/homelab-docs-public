@@ -1,0 +1,250 @@
+# Security & Presence Automations
+# These automations monitor doors, manage alarm state, and provide presence-based awareness
+# All security actions currently focus on notifications only (no physical responses yet)
+
+# Entrance Door Monitoring
+- id: '1768424319321'
+  alias: Entrance door opened - send a notification
+  triggers:
+  - type: opened
+    device_id: <ENTRANCE_DOOR_DEVICE_ID>
+    entity_id: <ENTRANCE_DOOR_ENTITY_ID>
+    domain: binary_sensor
+    trigger: device
+  actions:
+  - action: notify.mobile_app_user1_phone
+    data:
+      title: "🚪 Entrance door"
+      message: Entrance door was opened
+  mode: single
+
+- id: '1768424390136'
+  alias: Entrance door closed - send a notification
+  triggers:
+  - type: not_opened
+    device_id: <ENTRANCE_DOOR_DEVICE_ID>
+    entity_id: <ENTRANCE_DOOR_ENTITY_ID>
+    domain: binary_sensor
+    trigger: device
+  actions:
+  - action: notify.mobile_app_user1_phone
+    data:
+      title: "🚪 Entrance door"
+      message: Entrance door was closed
+  mode: single
+
+# Terrace Door Monitoring
+- id: '1768424485616'
+  alias: Terrace door opened - send notification
+  triggers:
+  - type: opened
+    device_id: <TERRACE_DOOR_DEVICE_ID>
+    entity_id: <TERRACE_DOOR_ENTITY_ID>
+    domain: binary_sensor
+    trigger: device
+  actions:
+  - action: notify.mobile_app_user1_phone
+    data:
+      title: "🚪 Terrace door"
+      message: Terrace door was opened
+  mode: single
+
+- id: '1768424529252'
+  alias: Terrace door closed - send a notification
+  triggers:
+  - type: not_opened
+    device_id: <TERRACE_DOOR_DEVICE_ID>
+    entity_id: <TERRACE_DOOR_ENTITY_ID>
+    domain: binary_sensor
+    trigger: device
+  actions:
+  - action: notify.mobile_app_user1_phone
+    data:
+      title: "🚪 Terrace door"
+      message: Terrace door was closed
+  mode: single
+
+# Alarm State Management
+# The alarm arms automatically at night or when everyone leaves,
+# and disarms in the morning (if someone home) or when someone arrives.
+
+- id: '1769896653324'
+  alias: Alarm – Auto-arm at night
+  description: Arm the alarm at 22:00
+  triggers:
+  - trigger: time
+    at: '22:00:00'
+  actions:
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.alarm_armed
+  mode: single
+
+- id: '1769896840171'
+  alias: Alarm – Auto-disarm in morning
+  description: Disarm the alarm at 06:00 if someone is home (vacation-safe)
+  triggers:
+  - trigger: time
+    at: 06:00:00
+  conditions:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: person.user1
+      state: home
+    - condition: state
+      entity_id: person.user2
+      state: home
+  actions:
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.alarm_armed
+  mode: single
+
+- id: '1769896890745'
+  alias: Alarm – Auto-arm when everyone leaves
+  description: Arm the alarm when both persons leave home
+  triggers:
+  - entity_id: person.user1
+    to: not_home
+    trigger: state
+  - entity_id: person.user2
+    to: not_home
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: person.user1
+    state: not_home
+  - condition: state
+    entity_id: person.user2
+    state: not_home
+  actions:
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.alarm_armed
+  mode: single
+
+- id: '1769896925194'
+  alias: Alarm – Auto-disarm on arrival
+  description: Disarm the alarm when someone arrives home
+  triggers:
+  - entity_id: person.user1
+    to: home
+    trigger: state
+  - entity_id: person.user2
+    to: home
+    trigger: state
+  actions:
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.alarm_armed
+  mode: single
+
+# Security Alerts
+# Simple: if alarm is armed and door opens, notify (and later trigger siren)
+
+- id: '1769896984739'
+  alias: Security – Door opened while armed
+  description: Alert when any door opens while alarm is armed
+  triggers:
+  - entity_id:
+    - binary_sensor.entry_door_sensor
+    - binary_sensor.terrace_door_sensor
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: input_boolean.alarm_armed
+    state: 'on'
+  variables:
+    door_name: |
+      {% if trigger.entity_id == 'binary_sensor.entry_door_sensor' %}
+        Entrance door
+      {% elif trigger.entity_id == 'binary_sensor.terrace_door_sensor' %}
+        Terrace door
+      {% else %}
+        A door
+      {% endif %}
+  actions:
+  - action: notify.mobile_app_user1_phone
+    data:
+      title: "🚨 ALARM: Door opened"
+      message: '{{ door_name }} opened while alarm is armed!'
+  # Future: Add siren trigger here
+  # - action: switch.turn_on
+  #   target:
+  #     entity_id: switch.siren
+  mode: single
+
+# Presence Notifications
+# Cross-notify: each person gets notified when the other arrives or leaves
+# Only notifies if the recipient is NOT home (no point notifying if they can see it themselves)
+
+- id: '1769897561532'
+  alias: Presence – Notify when someone arrives or leaves
+  description: Cross-notify partners about each other's arrivals and departures (only when recipient is away)
+  triggers:
+  - entity_id: person.user1
+    to: home
+    trigger: state
+    id: user1_arrived
+  - entity_id: person.user1
+    to: not_home
+    trigger: state
+    id: user1_left
+  - entity_id: person.user2
+    to: home
+    trigger: state
+    id: user2_arrived
+  - entity_id: person.user2
+    to: not_home
+    trigger: state
+    id: user2_left
+  variables:
+    person_name: |
+      {% if 'user1' in trigger.entity_id %}
+        User1
+      {% else %}
+        User2
+      {% endif %}
+    action_text: |
+      {% if trigger.to_state.state == 'home' %}
+        arrived home
+      {% else %}
+        left home
+      {% endif %}
+    notify_target: |
+      {% if 'user1' in trigger.entity_id %}
+        notify.mobile_app_user2_phone
+      {% else %}
+        notify.mobile_app_user1_phone
+      {% endif %}
+    recipient_home: |
+      {% if 'user1' in trigger.entity_id %}
+        {{ is_state('person.user2', 'home') }}
+      {% else %}
+        {{ is_state('person.user1', 'home') }}
+      {% endif %}
+  conditions:
+  - condition: template
+    value_template: "{{ recipient_home == 'False' }}"
+  actions:
+  - action: "{{ notify_target }}"
+    data:
+      title: "📍 {{ person_name }}"
+      message: "{{ person_name }} {{ action_text }}."
+  mode: single
+
+# ============================================================================
+# DISABLED AUTOMATIONS (kept for reference, may be deleted later)
+# ============================================================================
+
+# - id: '1768654018966'
+#   alias: Security – Entrance door opened (away)
+#   # ⚠️ DISABLED: Uses non-existent entity binary_sensor.entrance_door
+#   # Replaced by: Security – Door opened while armed (checks alarm_armed state)
+
+# - id: '1768655058190'
+#   alias: Alarm – Armed/Disarmed notification
+#   # ⚠️ DISABLED: Too noisy (4+ notifications/day)
+#   # Only security events (door opened while armed) need notifications

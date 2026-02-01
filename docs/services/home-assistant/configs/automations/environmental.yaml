@@ -1,0 +1,36 @@
+# Environmental Automations
+# Monitor environmental conditions and notify for action
+
+# Humidity Monitoring
+- id: '1768425042250'
+  alias: Lüften! – Hohe Luftfeuchtigkeit (alle Räume)
+  description: Notify when any room's humidity exceeds 60% to prompt opening windows
+  triggers:
+  - entity_id:
+    - sensor.temperature_humidity_sensor_humidity
+    - sensor.temperature_humidity_sensor_humidity_2
+    - sensor.temperature_humidity_sensor_humidity_3
+    - sensor.temperature_humidity_sensor_humidity_4
+    - sensor.temperature_humidity_sensor_humidity_5
+    above: 60
+    for:
+      minutes: 5
+    trigger: numeric_state
+  variables:
+    room_map:
+      sensor.temperature_humidity_sensor_humidity: Office
+      sensor.temperature_humidity_sensor_humidity_2: Child2s room
+      sensor.temperature_humidity_sensor_humidity_3: Child1s room
+      sensor.temperature_humidity_sensor_humidity_4: Living room
+      sensor.temperature_humidity_sensor_humidity_5: Bedroom
+  actions:
+  - action: notify.mobile_app_user1_phone
+    data:
+      title: "💧 Lüften!"
+      message: '{{ room_map.get(trigger.entity_id, trigger.to_state.name) }}: {{ trigger.to_state.state | float | round(0) }} % Luftfeuchtigkeit'
+  - action: notify.mobile_app_user2_phone
+    data:
+      title: "💧 Lüften!"
+      message: '{{ room_map.get(trigger.entity_id, trigger.to_state.name) }}: {{ trigger.to_state.state | float | round(0) }} % Luftfeuchtigkeit'
+  mode: queued
+  max: 10

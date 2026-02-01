@@ -1,0 +1,191 @@
+# System & Infrastructure Automations
+# Monitor UPS, Home Assistant health, and system resources
+
+# UPS Monitoring
+- id: '1768077425923'
+  alias: UPS - Power lost (On Battery)
+  description: UPS power lost - goes on battery (15min cooldown)
+  triggers:
+  - value_template: '{{ ''OB'' in states(''sensor.ups_status_data'') }}'
+    trigger: template
+  conditions:
+  - condition: template
+    value_template: '{{ (as_timestamp(now()) - as_timestamp(state_attr(this.entity_id,''last_triggered'') or 0)) > 900 }}'
+  actions:
+  - data:
+      title: ⚡ Power Outage
+      message: >
+        Mains power lost. UPS is on battery.
+        Battery: {{ states('sensor.ups_battery_charge') }}%
+        · Load: {{ states('sensor.ups_load') }}%
+        · Input: {{ states('sensor.ups_input_voltage') }}V
+        Status: {{ states('sensor.ups_status_data') }}
+    action: notify.mobile_app_user1_phone
+  - action: notify.persistent_notification
+    data:
+      message: >
+        Mains power lost. UPS is on battery.
+        Battery: {{ states('sensor.ups_battery_charge') }}%
+        · Load: {{ states('sensor.ups_load') }}%
+        · Input: {{ states('sensor.ups_input_voltage') }}V
+        Status: {{ states('sensor.ups_status_data') }}
+      title: ⚡ Power Outage
+  mode: single
+
+- id: '1768077650509'
+  alias: UPS - Power restored (Back Online)
+  description: UPS power restored (5min cooldown)
+  triggers:
+  - value_template: '{{ ''OL'' in states(''sensor.ups_status_data'') and ''OB'' not in states(''sensor.ups_status_data'') }}'
+    trigger: template
+  conditions:
+  - condition: template
+    value_template: '{{ (as_timestamp(now()) - as_timestamp(state_attr(this.entity_id,''last_triggered'') or 0)) > 300 }}'
+  actions:
+  - data:
+      title: "🔌 Power Restored"
+      message: >
+        Grid power is back. UPS returned online.
+        Battery: {{ states('sensor.ups_battery_charge') }}%
+        · Load: {{ states('sensor.ups_load') }}%
+        · Input: {{ states('sensor.ups_input_voltage') }}V
+        Status: {{ states('sensor.ups_status_data') }}
+    action: notify.mobile_app_user1_phone
+  - data:
+      title: "🔌 Power Restored"
+      notification_id: ups_restored
+      message: >
+        Grid power is back. UPS returned online.
+        Battery: {{ states('sensor.ups_battery_charge') }}%
+        · Load: {{ states('sensor.ups_load') }}%
+        · Input: {{ states('sensor.ups_input_voltage') }}V
+        Status: {{ states('sensor.ups_status_data') }}
+    action: persistent_notification.create
+  mode: single
+
+- id: '1768077808088'
+  alias: UPS - Battery critically low (LB)
+  description: UPS battery critically low (1 hour cooldown)
+  triggers:
+  - value_template: '{{ ''LB'' in states(''sensor.ups_status_data'') }}'
+    trigger: template
+  conditions:
+  - condition: template
+    value_template: '{{ (as_timestamp(now()) - as_timestamp(state_attr(this.entity_id,''last_triggered'') or 0)) > 3600 }}'
+  actions:
+  - data:
+      title: "🪫 UPS Battery CRITICAL"
+      message: >
+        UPS reports LOW BATTERY (critical). Shutdown may happen soon!
+        Battery: {{ states('sensor.ups_battery_charge') }}%
+        · Load: {{ states('sensor.ups_load') }}%
+        Status: {{ states('sensor.ups_status_data') }}
+    action: notify.mobile_app_user1_phone
+  - data:
+      title: "🪫 UPS Battery CRITICAL"
+      notification_id: ups_critical
+      message: >
+        UPS reports LOW BATTERY (critical). Shutdown may happen soon!
+        Battery: {{ states('sensor.ups_battery_charge') }}%
+        · Load: {{ states('sensor.ups_load') }}%
+        Status: {{ states('sensor.ups_status_data') }}
+    action: persistent_notification.create
+  mode: single
+
+- id: '1768077882130'
+  alias: UPS - Forced shutdown imminent (FSD)
+  description: UPS forced shutdown imminent (1 hour cooldown)
+  triggers:
+  - value_template: '{{ ''FSD'' in states(''sensor.ups_status_data'') }}'
+    trigger: template
+  conditions:
+  - condition: template
+    value_template: '{{ (as_timestamp(now()) - as_timestamp(state_attr(this.entity_id,''last_triggered'') or 0)) > 3600 }}'
+  actions:
+  - data:
+      title: "🚨 UPS Shutdown Imminent"
+      message: >
+        UPS reports FSD (forced shutdown). Power cut is imminent.
+        Battery: {{ states('sensor.ups_battery_charge') }}%
+        · Load: {{ states('sensor.ups_load') }}%
+        Status: {{ states('sensor.ups_status_data') }}
+    action: notify.mobile_app_user1_phone
+  - data:
+      title: "🚨 UPS Shutdown Imminent"
+      notification_id: ups_fsd
+      message: >
+        UPS reports FSD (forced shutdown). Power cut is imminent.
+        Battery: {{ states('sensor.ups_battery_charge') }}%
+        · Load: {{ states('sensor.ups_load') }}%
+        Status: {{ states('sensor.ups_status_data') }}
+    action: persistent_notification.create
+  mode: single
+
+# Home Assistant System Health
+- id: '1768078753076'
+  alias: HA Heartbeat
+  description: Ping Healthchecks.io every minute (dead-man switch)
+  triggers:
+  - minutes: /1
+    trigger: time_pattern
+  actions:
+  - action: shell_command.hc_ha_heartbeat
+  mode: single
+
+- id: '1768080268766'
+  alias: HA - Started
+  description: Home Assistant startup notification
+  triggers:
+  - event: start
+    trigger: homeassistant
+  actions:
+  - action: notify.mobile_app_user1_phone
+    data:
+      title: "🟢 Home Assistant started"
+      message: Home Assistant has started successfully.
+  - action: persistent_notification.create
+    data:
+      title: Home Assistant
+      notification_id: ha_started
+      message: 'Home Assistant started at {{ now().strftime(''%Y-%m-%d %H:%M:%S'') }}.'
+  mode: single
+
+- id: '1768080483782'
+  alias: HA - Low disk space
+  description: Warn when disk usage exceeds 85%
+  triggers:
+  - entity_id: sensor.system_monitor_disk_usage
+    above: 85
+    for: 00:10:00
+    trigger: numeric_state
+  actions:
+  - data:
+      title: ⚠️ Low Disk Space
+      message: 'Disk usage is above 85%. Current usage: {{ states(''sensor.system_monitor_disk_usage'') }}%.'
+    action: notify.mobile_app_user1_phone
+  - data:
+      title: ⚠️ Low Disk Space
+      notification_id: ha_disk_low
+      message: 'Disk usage is above 85%. Current usage: {{ states(''sensor.system_monitor_disk_usage'') }}%. Check storage before Home Assistant becomes unstable.'
+    action: persistent_notification.create
+  mode: single
+
+- id: '1768081797706'
+  alias: HA - Automatic backup failed
+  description: Alert when automatic HA backup fails
+  triggers:
+  - entity_id: event.backup_automatic_backup
+    attribute: event_type
+    to: failed
+    trigger: state
+  actions:
+  - data:
+      title: "💾 Home Assistant backup FAILED"
+      message: 'Automatic backup failed. Reason: {{ state_attr(''event.backup_automatic_backup'', ''failed_reason'') or ''unknown'' }}'
+    action: notify.mobile_app_user1_phone
+  - data:
+      title: "💾 Home Assistant backup FAILED"
+      notification_id: ha_backup_failed
+      message: 'Automatic backup failed. Reason: {{ state_attr(''event.backup_automatic_backup'', ''failed_reason'') or ''unknown'' }}'
+    action: persistent_notification.create
+  mode: single

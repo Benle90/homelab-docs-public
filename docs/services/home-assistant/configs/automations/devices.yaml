@@ -1,0 +1,38 @@
+# Device Health Monitoring Automations
+# Monitor battery levels and device health
+
+# Low Battery Notifications (Weekly)
+- id: '1737909986713'
+  alias: Low Battery Notifications & Actions
+  description: Weekly notification of all devices with low battery (Saturdays at 3 AM)
+  use_blueprint:
+    path: Blackshome/low-battery-notifications-and-actions.yaml
+    input:
+      include_time: time_enabled
+      time: 03:00:00
+      include_easy_notify: enable_easy_okay_notify
+      include_persistent_notification: enable_persistent_okay_notification
+      notify_device:
+      - <NOTIFY_DEVICE_ID>
+      weekday_options:
+      - sat
+
+# Printer Toner Monitoring
+- id: '1768076646181'
+  alias: Alert when Brother printer toner is low
+  description: Alert when printer toner drops below 20%
+  triggers:
+  - trigger: numeric_state
+    entity_id: sensor.hl_l2350dw_black_toner_remaining
+    above: 0
+    below: 20
+  actions:
+  - action: notify.persistent_notification
+    data:
+      message: "🖨️ Brother printer toner is LOW. Consider ordering a replacement cartridge."
+      title: "🖨️ Brother printer toner is LOW"
+  - action: notify.mobile_app_user1_phone
+    data:
+      message: "🖨️ Brother printer toner is LOW. Consider ordering a replacement cartridge."
+      title: "🖨️ Brother printer toner is LOW"
+  mode: single
