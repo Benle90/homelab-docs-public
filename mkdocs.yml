@@ -17,6 +17,7 @@ nav:
   - Home: README.md
   - Current State: current-state.md
   - Quick Reference: QUICK-REFERENCE.md
+  - Hardware Inventory: inventory.md
   - Servers:
     - Infrastructure: servers/infra-server.md
     - Storage: servers/storage-server.md
@@ -37,8 +38,11 @@ nav:
   - Procedures:
     - Migration Plan: procedures/migration-plan.md
   - Recovery:
+    - Overview: recovery/backups.md
     - Backup Strategy: recovery/backup-strategy.md
     - Disaster Recovery: recovery/disaster-recovery.md
+    - Proxmox Backup & Restore: recovery/proxmox-backup-restore.md
+    - TrueNAS Backup & Restore: recovery/truenas-backup-restore.md
   - Changelog: CHANGELOG.md
   - Lessons Learned: LESSONS-LEARNED.md
   - Templates:
