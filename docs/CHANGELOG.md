@@ -167,7 +167,7 @@
 ### Rationale
 - **B2 daily backup:** Minimal RPO (24 hours), critical data protection
 - **Storj weekly backup:** Cost-effective for large datasets (photos, media)
-- **Dual provider:** Redundancy and cost optimization
+- **Dual provider:** Redundancy and testing both providers
 - **Healthchecks.io:** Proactive failure detection for all backup tasks
 
 ---
