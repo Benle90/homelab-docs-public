@@ -151,8 +151,6 @@ Reusable templates are available in [docs/templates/](docs/templates/):
 
 ## GitHub Issues Integration
 
-**Repository:** [Benle90/homelab-docs](https://github.com/Benle90/homelab-docs)
-
 Issues provide persistence across sessions - use them to track work that spans multiple conversations.
 
 ### When User Reports a Problem
