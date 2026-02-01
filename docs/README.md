@@ -12,6 +12,7 @@ This repository documents my entire homelab setup with the assumption that **eve
 ### 📊 Current State & Planning
 - [Current State](current-state.md) - What's deployed right now
 - [Quick Reference](QUICK-REFERENCE.md) - IPs, credentials, key commands
+- [Hardware Inventory](inventory.md) - All physical hardware
 - [Changelog](CHANGELOG.md) - All significant changes and decisions
 - [Lessons Learned](LESSONS-LEARNED.md) - What worked, what didn't
 
