@@ -1,3 +1,6 @@
+## NEW! I've created a template version with AI-assisted setup wizard: https://github.com/Benle90/homelab-docs-public-template/
+
+
 # Homelab Documentation
 
 **Location**: Home
